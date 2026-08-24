@@ -1,7 +1,7 @@
 import json
 
 # Define o caminho para o arquivo JSON que contém a base de usuários
-caminho = 'models/dados.json'
+caminho = './models/dados.json'
 
 def carregar_dados():
     """ 
@@ -80,3 +80,4 @@ def validar_email(endereco):
     return None
 
 dados = carregar_dados()
+print(dados)

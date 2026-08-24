@@ -29,7 +29,7 @@ def adicionar_usuario():
     
     erro = mng.validar_email(dados_usuario["email"])
     if erro:
-        return jsonify(erro)
+        return jsonify(erro), 409
     
     novo_id = mng.gerar_registro()
     mng.atualizar_registro(novo_id, dados_usuario)
@@ -104,4 +104,4 @@ def deletar_usuario(id):
     
 # Define uma rota para a API que retorna informações sobre o status da aplicação
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
