@@ -176,11 +176,9 @@ O arquivo atual imprime as respostas, mas não possui asserções automatizadas;
 
 ## Limitações conhecidas
 
-- Os códigos de status são informados no corpo JSON, mas as rotas não os definem explicitamente como status HTTP do Flask; o status HTTP real pode permanecer `200`.
 - A função de geração de IDs precisa tratar explicitamente a coleção vazia antes de acessar o primeiro elemento.
 - A persistência depende do diretório a partir do qual o processo é iniciado, pois o caminho do arquivo JSON é relativo.
 - O estado global e a escrita direta em arquivo são inadequados para múltiplas requisições concorrentes.
-- O servidor é destinado a desenvolvimento local e executa com `debug=True` quando iniciado diretamente.
 
 ## Licença
 
