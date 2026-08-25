@@ -28,7 +28,7 @@ api-connect/
 ├── repositories/
 │   └── manager.py         # Leitura, escrita e operações sobre os dados
 ├── tests/
-│   └── requests.py        # Testes manuais com requisições HTTP
+│   └── test.py        # Testes manuais com requisições HTTP
 ├── app.py                 # Aplicação Flask e definição das rotas
 ├── requirements.txt       # Dependências do projeto
 ├── RELATORIO.md           # Relatório técnico
@@ -167,7 +167,7 @@ Essa abordagem atende a testes locais e ao objetivo didático do MVP, mas não o
 Com o servidor em execução, abra outro terminal, ative o ambiente virtual e execute:
 
 ```powershell
-py tests\requests.py
+py tests\test.py
 ```
 
 O script testa a criação de usuário, a validação de um cadastro sem e-mail, a listagem e a consulta de um ID inexistente. Os resultados esperados no corpo JSON são, respectivamente, `201`, `400`, `200` e `404`.
@@ -181,15 +181,6 @@ O arquivo atual imprime as respostas, mas não possui asserções automatizadas;
 - A persistência depende do diretório a partir do qual o processo é iniciado, pois o caminho do arquivo JSON é relativo.
 - O estado global e a escrita direta em arquivo são inadequados para múltiplas requisições concorrentes.
 - O servidor é destinado a desenvolvimento local e executa com `debug=True` quando iniciado diretamente.
-
-## Próximas melhorias
-
-- Corrigir o status HTTP efetivo retornado por cada rota.
-- Formalizar a política de remoção lógica ou implementar remoção física.
-- Adicionar testes automatizados com `pytest`.
-- Usar caminhos baseados na localização do projeto.
-- Migrar a persistência para um banco de dados transacional.
-- Adicionar tratamento centralizado de erros e configuração por variáveis de ambiente.
 
 ## Licença
 
