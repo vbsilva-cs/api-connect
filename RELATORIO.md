@@ -71,7 +71,7 @@ O projeto adota uma separação simples de responsabilidades, adequada ao escopo
 - `repositories/manager.py`: leitura e gravação atômica do JSON, geração de identificadores, consulta, atualização e verificação de e-mails duplicados.
 - `services/usuarios.py`: regras de negócio das mutações e sincronização por lock de processo.
 - `models/dados.json`: armazenamento local dos registros. O estado inicial contém uma coleção `usuarios` vazia.
-- `tests/test_api.py`: testes automatizados com o cliente Flask e persistência temporária.
+- `tests/test.py`: script de testes manuais que envia requisições HTTP para a API.
 - `requirements.txt`: declaração das dependências Python.
 - `README.md`: documentação de uso do projeto.
 - `LICENSE`: licença do repositório.

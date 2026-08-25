@@ -28,9 +28,7 @@ api-connect/
 ├── repositories/
 │   └── manager.py         # Leitura, escrita e operações sobre os dados
 ├── tests/
-│   └── test_api.py        # Testes automatizados com cliente Flask
-├── services/
-│   └── usuarios.py        # Regras de negócio e sincronização
+│   └── test.py        # Testes manuais com requisições HTTP
 ├── app.py                 # Aplicação Flask e definição das rotas
 ├── requirements.txt       # Dependências do projeto
 ├── RELATORIO.md           # Relatório técnico
@@ -168,7 +166,7 @@ Essa abordagem atende a testes locais e ao objetivo didático do MVP, mas não o
 Execute a suíte automatizada na raiz do projeto:
 
 ```powershell
-py -m pytest -q
+py tests\test.py
 ```
 
 Os testes cobrem criação, consulta, exclusão lógica, bloqueio de alterações, e-mails duplicados, payload inválido e criação concorrente. Para o smoke test contra um servidor em execução, use `py tests\test.py`.
@@ -179,14 +177,9 @@ Os testes cobrem criação, consulta, exclusão lógica, bloqueio de alteraçõe
 - O lock não coordena múltiplos processos ou instâncias do servidor; a migração para banco transacional continua necessária em produção.
 - O JSON é carregado em memória e permanece adequado apenas ao MVP local.
 
-## Organização
-
-A organização atual é adequada para o tamanho do projeto. Se crescer, `controllers/` pode ser renomeado para `routes/` ou `api/`, e `validacao.py` para `validators.py`. A separação entre `services/` e `repositories/` já está no local apropriado.
-
-## Próximas melhorias
-
-- Migrar a persistência para um banco de dados transacional.
-- Adicionar tratamento centralizado de erros e configuração por variáveis de ambiente.
+- A função de geração de IDs precisa tratar explicitamente a coleção vazia antes de acessar o primeiro elemento.
+- A persistência depende do diretório a partir do qual o processo é iniciado, pois o caminho do arquivo JSON é relativo.
+- O estado global e a escrita direta em arquivo são inadequados para múltiplas requisições concorrentes.
 
 ## Licença
 
