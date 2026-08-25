@@ -68,7 +68,7 @@ O projeto adota uma separação simples de responsabilidades, adequada ao escopo
 - `controllers/validacao.py`: validação do tipo de conteúdo, dos campos obrigatórios, do nome e do e-mail.
 - `repositories/manager.py`: leitura do arquivo JSON, geração de identificadores, consulta, atualização e verificação de e-mails duplicados.
 - `models/dados.json`: armazenamento local dos registros. O estado inicial contém uma coleção `usuarios` vazia.
-- `tests/requests.py`: script de testes manuais que envia requisições HTTP para a API.
+- `tests/test.py`: script de testes manuais que envia requisições HTTP para a API.
 - `requirements.txt`: declaração das dependências Python.
 - `README.md`: documentação de uso do projeto.
 - `LICENSE`: licença do repositório.
