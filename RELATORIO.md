@@ -21,7 +21,7 @@ O sistema disponibiliza operações para criação, consulta, atualização e re
 
 - Python 3.13.5.
 - Flask 3.1.3.
-- Biblioteca `requests` para o script de testes.
+- `pytest` para os testes automatizados e `requests` para o smoke test HTTP.
 - Arquivo JSON como mecanismo de persistência provisória.
 - Git para controle de versão.
 
@@ -56,7 +56,9 @@ O projeto adota uma separação simples de responsabilidades, adequada ao escopo
     /repositories
         manager.py
     /tests
-        requests.py
+        test_api.py
+    /services
+        usuarios.py
     app.py
     LICENSE
     README.md
@@ -66,9 +68,10 @@ O projeto adota uma separação simples de responsabilidades, adequada ao escopo
 
 - `app.py`: ponto de entrada da aplicação, definição das rotas e coordenação do fluxo HTTP.
 - `controllers/validacao.py`: validação do tipo de conteúdo, dos campos obrigatórios, do nome e do e-mail.
-- `repositories/manager.py`: leitura do arquivo JSON, geração de identificadores, consulta, atualização e verificação de e-mails duplicados.
+- `repositories/manager.py`: leitura e gravação atômica do JSON, geração de identificadores, consulta, atualização e verificação de e-mails duplicados.
+- `services/usuarios.py`: regras de negócio das mutações e sincronização por lock de processo.
 - `models/dados.json`: armazenamento local dos registros. O estado inicial contém uma coleção `usuarios` vazia.
-- `tests/requests.py`: script de testes manuais que envia requisições HTTP para a API.
+- `tests/test_api.py`: testes automatizados com o cliente Flask e persistência temporária.
 - `requirements.txt`: declaração das dependências Python.
 - `README.md`: documentação de uso do projeto.
 - `LICENSE`: licença do repositório.
@@ -101,7 +104,7 @@ O formato inicial do arquivo é:
 }
 ```
 
-Cada usuário possui, no mínimo, os campos `id`, `nome` e `email`. O identificador é numérico e, quando a coleção possui registros, é calculado a partir do último ID acrescido de um. Essa estratégia atende ao protótipo local, mas não oferece as garantias de concorrência, atomicidade e integridade de um banco de dados relacional ou de um serviço especializado.
+Cada usuário possui `id`, `nome`, `email` e `estado`, cujo valor é `ativo` ou `inativo`. O identificador é numérico, monotônico e nunca é reutilizado. O `DELETE` atribui `null` aos dados pessoais e muda o estado para `inativo`; o ID permanece no arquivo. Registros inativos não podem ser alterados.
 
 ### 7. Endpoints disponíveis
 
@@ -160,37 +163,34 @@ Também é validado o `Content-Type` da requisição, que deve ser `application/
 
 ### 9. Testes realizados
 
-O arquivo `tests/requests.py` utiliza a biblioteca `requests` para exercitar os seguintes cenários:
+O arquivo `tests/test_api.py` utiliza o cliente Flask para exercitar os seguintes cenários:
 
 1. criação de usuário com dados válidos;
 2. tentativa de criação sem o campo `email`;
 3. listagem dos usuários cadastrados;
 4. consulta de um ID inexistente.
 
-Os resultados observados no teste manual foram, respectivamente, `201`, `400`, `200` e `404`, conforme os valores registrados no corpo das respostas JSON.
+Além desses cenários, a suíte verifica exclusão lógica, preservação do ID, bloqueio de `PUT`, e-mail duplicado, JSON inválido e cinco criações concorrentes.
 
-Para executar o teste, inicie o servidor em um terminal e, em outro, execute:
+Para executar os testes automatizados:
 
 ```powershell
-py tests\requests.py
+py -m pytest -q
 ```
 
-O script atual imprime as respostas, mas não contém asserções automatizadas. Portanto, ele deve ser considerado um teste de integração manual, e não uma suíte de testes automatizados.
+O script `tests/test.py` permanece disponível como smoke test HTTP para ser executado com o servidor em funcionamento.
 
 ### 10. Limitações e pontos de evolução
 
 O estado atual atende ao objetivo didático do MVP, mas possui pontos que devem ser tratados antes de uma utilização produtiva:
 
-- os códigos HTTP aparecem no corpo JSON, porém as funções das rotas não passam explicitamente o segundo valor de retorno do Flask; assim, o status HTTP real pode permanecer `200`;
-- a operação DELETE não remove o objeto da lista: ela atribui `None` aos campos diferentes de `id`, caracterizando uma remoção lógica simplificada;
-- o cálculo de ID em `gerar_registro()` precisa tratar explicitamente uma coleção vazia para evitar acesso inválido ao primeiro elemento;
-- o caminho do arquivo JSON é relativo ao diretório de execução do processo;
-- a variável global e a gravação direta em arquivo não são adequadas para requisições concorrentes;
+- as mutações são serializadas por `RLock` em `services/usuarios.py` e a substituição do JSON é atômica;
+- o lock funciona dentro de uma instância do processo, não entre múltiplos processos;
+- o JSON continua sem transações, histórico ou bloqueio distribuído;
 - a validação de e-mail é deliberadamente básica e deve ser fortalecida conforme os requisitos do domínio;
-- o servidor está configurado para desenvolvimento, com `debug=True` na execução direta;
-- o script de testes deve corrigir a composição da URL de consulta por ID e validar também o status HTTP real.
+- a persistência em arquivo permanece apropriada apenas ao MVP local.
 
-Como evolução, recomenda-se adotar uma camada de serviço, testes automatizados com `pytest`, tratamento centralizado de erros, códigos HTTP efetivos nas respostas, persistência transacional e configuração por variáveis de ambiente.
+Como organização, a estrutura atual é adequada ao MVP. Se crescer, `controllers/` pode ser renomeado para `routes/` ou `api/`, `validacao.py` para `validators.py`, e as rotas podem ser movidas de `app.py` para um blueprint. A separação entre serviço e repositório já está no local correto.
 
 ### 11. Conclusão
 
