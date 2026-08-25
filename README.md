@@ -14,7 +14,7 @@ API REST para gerenciamento de usuários, desenvolvida em Python com Flask. O pr
 
 - Python 3.13.5
 - Flask 3.1.3
-- `requests` para os testes manuais
+- `pytest` para os testes automatizados e `requests` para o smoke test HTTP
 - JSON para persistência provisória
 
 ## Estrutura do projeto
@@ -49,7 +49,6 @@ No Windows, execute os comandos a partir da raiz do projeto:
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -m pip install -r requirements.txt
-py -m pip install requests
 ```
 
 O ambiente virtual `.venv` é ignorado pelo Git e deve ser ativado sempre que o projeto for executado em uma nova sessão do terminal.
@@ -132,7 +131,7 @@ Content-Type: application/json
 DELETE /usuarios/1/
 ```
 
-No estado atual, a remoção é lógica: os campos diferentes de `id` recebem `null` no arquivo JSON. O registro não é excluído fisicamente da coleção.
+No estado atual, a remoção é lógica: `nome` e `email` recebem `null`, `estado` passa a `inativo` e o registro não é excluído fisicamente. O `id` é preservado e registros inativos não aceitam `PUT`.
 
 ## Validações e respostas
 
@@ -162,19 +161,21 @@ Os dados são carregados e gravados em `models/dados.json`, inicialmente com a e
 
 Essa abordagem atende a testes locais e ao objetivo didático do MVP, mas não oferece os recursos de concorrência, transações, controle de acesso e integridade esperados em um banco de dados de produção.
 
-## Testes manuais
+## Testes
 
-Com o servidor em execução, abra outro terminal, ative o ambiente virtual e execute:
+Execute a suíte automatizada na raiz do projeto:
 
 ```powershell
 py tests\test.py
 ```
 
-O script testa a criação de usuário, a validação de um cadastro sem e-mail, a listagem e a consulta de um ID inexistente. Os resultados esperados no corpo JSON são, respectivamente, `201`, `400`, `200` e `404`.
+Os testes cobrem criação, consulta, exclusão lógica, bloqueio de alterações, e-mails duplicados, payload inválido e criação concorrente. Para o smoke test contra um servidor em execução, use `py tests\test.py`.
 
-O arquivo atual imprime as respostas, mas não possui asserções automatizadas; trata-se, portanto, de um teste manual de integração.
+## Concorrência e limitações
 
-## Limitações conhecidas
+- As mutações passam por `services/usuarios.py`, que usa `RLock` para serializar requisições no processo e gravação atômica por arquivo temporário.
+- O lock não coordena múltiplos processos ou instâncias do servidor; a migração para banco transacional continua necessária em produção.
+- O JSON é carregado em memória e permanece adequado apenas ao MVP local.
 
 - A função de geração de IDs precisa tratar explicitamente a coleção vazia antes de acessar o primeiro elemento.
 - A persistência depende do diretório a partir do qual o processo é iniciado, pois o caminho do arquivo JSON é relativo.
