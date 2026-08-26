@@ -8,21 +8,9 @@
         },
         {
             "id": 2,
-            "nome": null,
-            "email": null,
-            "estado": "inativo"
-        },
-        {
-            "id": 3,
             "nome": "Alice Johnson",
             "email": "alice_johnson@exemplo.com",
             "estado": "ativo"
-        },
-        {
-            "id": 4,
-            "estado": "ativo",
-            "nome": "Usuário Teste",
-            "email": "usuario_teste@exemplo.com"
         }
     ]
 }
