@@ -67,7 +67,7 @@ Como alternativa, use a CLI do Flask:
 py -m flask --app app.py run
 ```
 
-A API estará disponível em `http://127.0.0.1:5000`.
+A API estará disponível em `http://localhost:5000`.
 
 ## Endpoints
 
